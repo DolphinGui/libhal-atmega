@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Replace with the correct processor includes
-#include <libhal-__platform__/output_pin.hpp>
+#include <libhal-atmega328p/output_pin.hpp>
 #include <libhal-armcortex/dwt_counter.hpp>
 #include <libhal-armcortex/system_control.hpp>
 #include <libhal-exceptions/control.hpp>
@@ -29,7 +29,7 @@ extern void application();
   using namespace hal::literals;
   // Replace this with something that makes sense...
   hal::cortex_m::dwt_counter clock(12.0_MHz);
-  hal::__platform__::output_pin led;
+  hal::atmega328p::output_pin led;
 
   while (true) {
     led.level(false);

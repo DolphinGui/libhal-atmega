@@ -14,10 +14,10 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-project(libhal-__platform__ LANGUAGES CXX)
+project(libhal-atmega328p LANGUAGES CXX)
 
 libhal_test_and_make_library(
-  LIBRARY_NAME libhal-__platform__
+  LIBRARY_NAME libhal-atmega328p
 
   SOURCES
   src/output_pin.cpp

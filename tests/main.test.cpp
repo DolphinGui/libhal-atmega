@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace hal::__platform__ {   // NOLINT
+namespace hal::atmega328p {   // NOLINT
 extern void output_pin_test();  // NOLINT
-}  // namespace hal::__platform__
+}  // namespace hal::atmega328p
 
 int main()
 {
-  hal::__platform__::output_pin_test();
+  hal::atmega328p::output_pin_test();
 }

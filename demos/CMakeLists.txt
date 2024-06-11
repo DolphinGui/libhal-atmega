@@ -22,8 +22,8 @@ libhal_build_demos(
     blinker
 
     PACKAGES
-    libhal-__platform__
+    libhal-atmega328p
 
     LINK_LIBRARIES
-    libhal::__platform__
+    libhal::atmega328p
 )

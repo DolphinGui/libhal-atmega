@@ -16,7 +16,7 @@
 
 #include <libhal/output_pin.hpp>
 
-namespace hal::__platform__ {  // NOLINT
+namespace hal::atmega328p {  // NOLINT
 class output_pin : public hal::output_pin
 {
 public:
@@ -29,4 +29,4 @@ private:
   void driver_level(bool p_high) override;
   bool driver_level() override;
 };
-}  // namespace hal::__platform__
+}  // namespace hal::atmega328p

@@ -21,13 +21,13 @@ import os
 required_conan_version = ">=2.0.14"
 
 
-class libhal___platform___conan(ConanFile):
-    name = "libhal-__platform__"
+class libhal_atmega328p_conan(ConanFile):
+    name = "libhal-atmega328p"
     license = "Apache-2.0"
-    homepage = "https://libhal.github.io/libhal-__platform__"
-    description = ("A collection of drivers and libraries for the __platform__ "
+    homepage = "https://libhal.github.io/libhal-atmega328p"
+    description = ("A collection of drivers and libraries for the atmega328p "
                    "series microcontrollers.")
-    topics = ("microcontroller", "__platform__",)
+    topics = ("microcontroller", "atmega328p",)
     settings = "compiler", "build_type", "os", "arch"
 
     python_requires = "libhal-bootstrap/[^2.0.0]"
@@ -45,38 +45,21 @@ class libhal___platform___conan(ConanFile):
         "platform": "ANY",
     }
 
-    @property
-    def _use_linker_script(self):
-        return (self.options.platform == "profile1" or
-                self.options.platform == "profile2")
-
-    def add_linker_scripts_to_link_flags(self):
-        platform = str(self.options.platform)
-        self.cpp_info.exelinkflags = [
-            "-L" + os.path.join(self.package_folder, "linker_scripts"),
-            "-T" + os.path.join("libhal-__platform__", platform + ".ld"),
-        ]
-
     def requirements(self):
         # Adds libhal and libhal-util as transitive headers, meaning library
         # consumers get the libhal and libhal-util headers downstream.
         bootstrap = self.python_requires["libhal-bootstrap"]
         bootstrap.module.add_library_requirements(self)
 
-        # Replace with appropriate processor library
-        self.requires("libhal-armcortex/[^4.0.0]")
-
     def package_info(self):
-        self.cpp_info.set_property("cmake_target_name", "libhal::__platform__")
-        self.cpp_info.libs = ["libhal-__platform__"]
+        self.cpp_info.set_property("cmake_target_name", "libhal::atmega328p")
+        self.cpp_info.libs = ["libhal-atmega328p"]
 
-        if self.settings.os == "baremetal" and self._use_linker_script:
-            self.add_linker_scripts_to_link_flags()
-
+        if self.settings.os == "baremetal":
             self.buildenv_info.define("LIBHAL_PLATFORM",
                                       str(self.options.platform))
             self.buildenv_info.define("LIBHAL_PLATFORM_LIBRARY",
-                                      "__platform__")
+                                      "atmega328p")
 
     def package_id(self):
         if self.info.options.get_safe("platform"):

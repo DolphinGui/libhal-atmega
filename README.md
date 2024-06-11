@@ -1,12 +1,12 @@
-# libhal-__platform__
+# libhal-atmega328p
 
-[![✅ Checks](https://github.com/libhal/libhal-__platform__/actions/workflows/ci.yml/badge.svg)](https://github.com/libhal/libhal-__platform__/actions/workflows/ci.yml)
-[![Coverage](https://libhal.github.io/libhal-__platform__/coverage/coverage.svg)](https://libhal.github.io/libhal-__platform__/coverage/)
-[![GitHub stars](https://img.shields.io/github/stars/libhal/libhal-__platform__.svg)](https://github.com/libhal/libhal-__platform__/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/libhal/libhal-__platform__.svg)](https://github.com/libhal/libhal-__platform__/network)
-[![GitHub issues](https://img.shields.io/github/issues/libhal/libhal-__platform__.svg)](https://github.com/libhal/libhal-__platform__/issues)
+[![✅ Checks](https://github.com/libhal/libhal-atmega328p/actions/workflows/ci.yml/badge.svg)](https://github.com/libhal/libhal-atmega328p/actions/workflows/ci.yml)
+[![Coverage](https://libhal.github.io/libhal-atmega328p/coverage/coverage.svg)](https://libhal.github.io/libhal-atmega328p/coverage/)
+[![GitHub stars](https://img.shields.io/github/stars/libhal/libhal-atmega328p.svg)](https://github.com/libhal/libhal-atmega328p/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/libhal/libhal-atmega328p.svg)](https://github.com/libhal/libhal-atmega328p/network)
+[![GitHub issues](https://img.shields.io/github/issues/libhal/libhal-atmega328p.svg)](https://github.com/libhal/libhal-atmega328p/issues)
 
-Platform library for __platform__ series of devices.
+Platform library for atmega328p series of devices.
 
 ## Contributing
 
@@ -39,7 +39,7 @@ To make your own libhal library:
 
 ## About the libhal-platform template
 
-The `libhal-__platform__` repository is a template for creating platform
+The `libhal-atmega328p` repository is a template for creating platform
 libraries in the libhal ecosystem. It provides a structured layout and a set of files to help you get started with creating your own platform library.
 
 ## .github/workflows
@@ -98,7 +98,7 @@ there are `stm32f100`, `stm32f101`, `stm32f102`, `stm32f103`, `stm32f105`, and
 
 Keep `default_options` as it is.
 
-## linker_scripts/libhal-__platform__
+## linker_scripts/libhal-atmega328p
 
 This directory contains linker scripts for different configurations of the
 platform. Each linker script specifies how the linker should arrange the
@@ -149,7 +149,7 @@ platform library. It includes:
   platform library.
 - `main.cpp`: The main entry point for the demo applications.
 
-## include/libhal-__platform__
+## include/libhal-atmega328p
 
 This directory contains the header files for the platform library. It currently
 includes `output_pin.hpp`, which is a placeholder for the main header file of
@@ -171,8 +171,8 @@ Conan recipe is working correctly.
 
 This directory contains tests for the platform library. It includes:
 
-- `__platform__.test.cpp`: A placeholder for tests for the platform library.
+- `atmega328p.test.cpp`: A placeholder for tests for the platform library.
 - `main.test.cpp`: The main entry point for the tests.
 
-Remember to replace all instances of `__platform__` with the actual name of the
+Remember to replace all instances of `atmega328p` with the actual name of the
 platform that your library is being built for.
