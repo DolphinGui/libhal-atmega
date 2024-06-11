@@ -1,0 +1,3 @@
+{% set arch = "cortex-m4" %}
+{% set platform = "profile2" %}
+{% include "__platform__" %}
