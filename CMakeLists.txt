@@ -21,6 +21,7 @@ libhal_test_and_make_library(
 
   SOURCES
   src/output_pin.cpp
+  src/uart.cpp
 
   TEST_SOURCES
   tests/output_pin.test.cpp
@@ -29,8 +30,10 @@ libhal_test_and_make_library(
   PACKAGES
   libhal
   libhal-util
+  ring-span-lite
 
   LINK_LIBRARIES
   libhal::libhal
   libhal::util
+  nonstd::ring-span-lite
 )

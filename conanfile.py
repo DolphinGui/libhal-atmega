@@ -46,10 +46,9 @@ class libhal_atmega328p_conan(ConanFile):
     }
 
     def requirements(self):
-        # Adds libhal and libhal-util as transitive headers, meaning library
-        # consumers get the libhal and libhal-util headers downstream.
         bootstrap = self.python_requires["libhal-bootstrap"]
         bootstrap.module.add_library_requirements(self)
+        self.requires("ring-span-lite/[^0.7.0]", transitive_headers=True)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "libhal::atmega328p")

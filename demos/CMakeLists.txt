@@ -19,7 +19,7 @@ project(demos LANGUAGES CXX)
 
 libhal_build_demos(
     DEMOS
-    blinker
+    hello
 
     PACKAGES
     libhal-atmega328p
