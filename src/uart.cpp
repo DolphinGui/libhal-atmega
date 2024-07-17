@@ -15,15 +15,8 @@
 #include <util/setbaud.h>
 
 namespace {
-
 // might have to make this volatile. maybe
 hal::atmega328p::uart* global_uart[1] = {};
-
-uint8_t uart_getchar()
-{
-  loop_until_bit_is_set(UCSR0A, RXC0);
-  return UDR0;
-}
 
 }  // namespace
 
@@ -51,10 +44,22 @@ uart::uart(std::span<uint8_t> p_in_buffer,
   UCSR0A &= ~(_BV(U2X0));
 #endif
 
-  UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);            /* 8-bit data */
-  UCSR0B = _BV(RXEN0) | _BV(TXEN0) | _BV(UDRE0); /* Enable RX and TX */
+  UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */
+  UCSR0B =
+    _BV(RXEN0) | _BV(TXEN0) | _BV(UDRE0) | _BV(RXCIE0); /* Enable RX and TX */
   global_uart[index] = this;
   sei();
+}
+
+ISR(USART_RX_vect)
+{
+  auto& uart = global_uart[0];
+  if (uart->m_rx.full()) {
+    uart->overwritten = true;
+    uart->m_rx.pop_front();
+  }
+  uint8_t data = UDR0;
+  uart->m_rx.push_back(data);
 }
 
 ISR(USART_UDRE_vect)
@@ -72,6 +77,7 @@ uart::~uart()
   loop_until_bit_is_set(UCSR0A, TXC0);
   slock lock;
   UCSR0B = 0;
+  UCSR0C = 0;
   global_uart[m_index] = nullptr;
 }
 
@@ -99,43 +105,21 @@ serial::write_t uart::driver_write(std::span<const hal::byte> in)
 
 serial::read_t uart::driver_read(std::span<hal::byte> out)
 {
-  // uint8_t transmitted = 0;
+  uint8_t transmitted = 0;
 
   slock lock;
-  out[0] = uart_getchar();
-  // for (auto& byte : out) {
-  //   if (m_rx.empty())
-  //     break;
-  //   byte = m_rx.pop_front();
-  //   ++transmitted;
-  // }
+  while (!m_rx.empty() && transmitted != out.size()) {
+    out[transmitted++] = m_rx.pop_front();
+  }
 
-  return { out.subspan(1), 0, 0 };
+  return { out.subspan(0, transmitted), m_rx.size(), m_rx.capacity() };
 }
 
 void uart::driver_flush()
 {
   UCSR0B |= _BV(UDRE0);
-  if(!m_tx.empty())
+  if (!m_tx.empty())
     UDR0 = m_tx.pop_front();
-}
-
-void uart::_tx_interrupt() noexcept
-{
-  // if (m_tx.empty()) {
-  //   UART.tx_complete_int_enable = false;
-  //   return;
-  // }
-  // uart_data = m_tx.pop_front();
-}
-
-void uart::_rx_interrupt() noexcept
-{
-  // if (m_rx.full()) {
-  //   m_rx.pop_front();
-  // }
-  // uint8_t data = uart_data;
-  // m_rx.push_back(data);
 }
 
 }  // namespace hal::atmega328p

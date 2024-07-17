@@ -20,9 +20,6 @@ public:
   uart(uart&& p_other) noexcept;
   uart& operator=(uart&& p_other) noexcept;
 
-  // please do not actually use this
-  void _tx_interrupt() noexcept;
-  void _rx_interrupt() noexcept;
   bool bad = false;
   bool overwritten = false;
 
