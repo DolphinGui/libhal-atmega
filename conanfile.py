@@ -15,20 +15,20 @@
 # limitations under the License.
 
 from conan import ConanFile
-import os
 
+from conan.tools.cmake import  CMakeDeps, CMakeToolchain
+from conan.tools.env import VirtualBuildEnv
 
 required_conan_version = ">=2.0.14"
 
-
 class libhal_atmega328p_conan(ConanFile):
-    name = "libhal-atmega328p"
+    name = "libhal-atmega"
     license = "Apache-2.0"
     homepage = "https://libhal.github.io/libhal-atmega328p"
-    description = ("A collection of drivers and libraries for the atmega328p "
+    description = ("A collection of drivers and libraries for the ATMega "
                    "series microcontrollers.")
-    topics = ("microcontroller", "atmega328p",)
-    settings = "compiler", "build_type", "os", "arch"
+    topics = ("microcontroller", "atmega",)
+    settings = "compiler", "build_type", "os", "arch", "mcu", "clock"
 
     python_requires = "libhal-bootstrap/[^2.0.0]"
     python_requires_extend = "libhal-bootstrap.library"
@@ -44,6 +44,16 @@ class libhal_atmega328p_conan(ConanFile):
     default_options = {
         "platform": "ANY",
     }
+
+    def generate(self):
+        virt = VirtualBuildEnv(self)
+        virt.generate()
+        tc = CMakeToolchain(self)
+        tc.variables["MCU_NAME"] = self.settings.mcu
+        tc.variables["CLOCK"] = self.settings.clock
+        tc.generate()
+        cmake = CMakeDeps(self)
+        cmake.generate()
 
     def requirements(self):
         bootstrap = self.python_requires["libhal-bootstrap"]

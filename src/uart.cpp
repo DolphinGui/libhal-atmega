@@ -1,11 +1,11 @@
-#include "libhal-atmega328p/uart.hpp"
+#include "libhal-atmega/uart.hpp"
 #include "status_lock.hpp"
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <cstdint>
 #include <stdexcept>
 #ifndef F_CPU
-#define F_CPU 16000000UL
+#define F_CPU 16'000'000UL
 #endif
 
 #ifndef BAUD
@@ -16,11 +16,11 @@
 
 namespace {
 // might have to make this volatile. maybe
-hal::atmega328p::uart* global_uart[1] = {};
+hal::atmega::uart* global_uart[1] = {};
 
 }  // namespace
 
-namespace hal::atmega328p {
+namespace hal::atmega {
 
 uart::uart(std::span<uint8_t> p_in_buffer,
            std::span<uint8_t> p_out_buffer,

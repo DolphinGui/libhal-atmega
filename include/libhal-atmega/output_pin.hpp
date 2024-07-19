@@ -16,7 +16,7 @@
 
 #include <libhal/output_pin.hpp>
 
-namespace hal::atmega328p {  // NOLINT
+namespace hal::atmega {  // NOLINT
 class output_pin : public hal::output_pin
 {
 public:

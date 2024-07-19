@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 
-namespace hal::atmega328p {
+namespace hal::atmega {
 // A lock that prevents interrupts while running while in scope
 struct slock
 {

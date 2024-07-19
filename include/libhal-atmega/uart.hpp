@@ -5,7 +5,7 @@
 #include <nonstd/ring_span.hpp>
 #include <span>
 
-namespace hal::atmega328p {
+namespace hal::atmega {
 class uart final : public hal::serial
 {
 public:

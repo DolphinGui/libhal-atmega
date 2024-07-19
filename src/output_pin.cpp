@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libhal-atmega328p/output_pin.hpp>
+#include <libhal-atmega/output_pin.hpp>
 
-namespace hal::atmega328p {  // NOLINT
+namespace hal::atmega {  // NOLINT
 
 void output_pin::driver_configure(
   [[maybe_unused]] const settings& p_settings)  // Remove [[maybe_unused]]
