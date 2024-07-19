@@ -22,4 +22,4 @@ struct slock
   uint8_t reg;
 };
 
-}  // namespace hal::atmega328p
+}  // namespace hal::atmega

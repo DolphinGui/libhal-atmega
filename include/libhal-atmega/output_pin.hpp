@@ -29,4 +29,4 @@ private:
   void driver_level(bool p_high) override;
   bool driver_level() override;
 };
-}  // namespace hal::atmega328p
+}  // namespace hal::atmega

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libhal-atmega328p/output_pin.hpp>
+#include <libhal-atmega/output_pin.hpp>
 #include <libhal-armcortex/dwt_counter.hpp>
 #include <libhal-util/steady_clock.hpp>
 
@@ -21,7 +21,7 @@ void application()
   using namespace hal::literals;
   // TODO(libhal-target): Set the correct frequency and output pin driver
   hal::cortex_m::dwt_counter clock(1.0_MHz);
-  hal::atmega328p::output_pin led;
+  hal::atmega::output_pin led;
 
   while (true) {
     using namespace std::chrono_literals;

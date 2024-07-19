@@ -122,4 +122,4 @@ void uart::driver_flush()
     UDR0 = m_tx.pop_front();
 }
 
-}  // namespace hal::atmega328p
+}  // namespace hal::atmega

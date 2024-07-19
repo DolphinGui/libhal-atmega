@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <avr-tools-device-file xmlns:xalan="http://xml.apache.org/xalan" xmlns:NumHelper="NumHelper" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schema-version="0.3" xsi:noNamespaceSchemaLocation="../../schema/avr_tools_device_file.xsd">
   <variants>
-    <variant ordercode="ATmega328PB-AU" tempmin="-40" tempmax="85" speedmax="20000000" pinout="TQFP32" package="TQFP32" vccmin="1.8" vccmax="5.5"/>
-    <variant ordercode="ATmega328PB-MU" tempmin="-40" tempmax="85" speedmax="20000000" pinout="VQFN32" package="VQFN32" vccmin="1.8" vccmax="5.5"/>
-    <variant ordercode="ATmega328PB-AN" tempmin="-40" tempmax="105" speedmax="20000000" pinout="TQFP32" package="TQFP32" vccmin="1.8" vccmax="5.5"/>
-    <variant ordercode="ATmega328PB-MN" tempmin="-40" tempmax="105" speedmax="20000000" pinout="VQFN32" package="VQFN32" vccmin="1.8" vccmax="5.5"/>
+    <variant ordercode="ATmegaB-AU" tempmin="-40" tempmax="85" speedmax="20000000" pinout="TQFP32" package="TQFP32" vccmin="1.8" vccmax="5.5"/>
+    <variant ordercode="ATmegaB-MU" tempmin="-40" tempmax="85" speedmax="20000000" pinout="VQFN32" package="VQFN32" vccmin="1.8" vccmax="5.5"/>
+    <variant ordercode="ATmegaB-AN" tempmin="-40" tempmax="105" speedmax="20000000" pinout="TQFP32" package="TQFP32" vccmin="1.8" vccmax="5.5"/>
+    <variant ordercode="ATmegaB-MN" tempmin="-40" tempmax="105" speedmax="20000000" pinout="VQFN32" package="VQFN32" vccmin="1.8" vccmax="5.5"/>
   </variants>
   <devices>
-    <device name="ATmega328PB" architecture="AVR8" family="megaAVR">
+    <device name="ATmegaB" architecture="AVR8" family="megaAVR">
       <address-spaces>
         <address-space endianness="little" name="prog" id="prog" start="0x0000" size="0x8000">
           <memory-segment start="0x0000" size="0x8000" type="flash" rw="RW" exec="1" name="FLASH" pagesize="0x80"/>

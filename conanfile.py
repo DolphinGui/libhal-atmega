@@ -21,10 +21,10 @@ from conan.tools.env import VirtualBuildEnv
 
 required_conan_version = ">=2.0.14"
 
-class libhal_atmega328p_conan(ConanFile):
+class libhal_atmega_conan(ConanFile):
     name = "libhal-atmega"
     license = "Apache-2.0"
-    homepage = "https://libhal.github.io/libhal-atmega328p"
+    homepage = "https://libhal.github.io/libhal-atmega"
     description = ("A collection of drivers and libraries for the ATMega "
                    "series microcontrollers.")
     topics = ("microcontroller", "atmega",)
@@ -61,14 +61,14 @@ class libhal_atmega328p_conan(ConanFile):
         self.requires("ring-span-lite/[^0.7.0]", transitive_headers=True)
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_target_name", "libhal::atmega328p")
-        self.cpp_info.libs = ["libhal-atmega328p"]
+        self.cpp_info.set_property("cmake_target_name", "libhal::atmega")
+        self.cpp_info.libs = ["libhal-atmega"]
 
         if self.settings.os == "baremetal":
             self.buildenv_info.define("LIBHAL_PLATFORM",
                                       str(self.options.platform))
             self.buildenv_info.define("LIBHAL_PLATFORM_LIBRARY",
-                                      "atmega328p")
+                                      "atmega")
 
     def package_id(self):
         if self.info.options.get_safe("platform"):

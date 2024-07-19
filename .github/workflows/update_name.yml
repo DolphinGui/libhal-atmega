@@ -24,7 +24,7 @@ jobs:
   update_name:
     name: 🖋️ Update package name
     runs-on: ubuntu-latest
-    if: github.repository != 'libhal/libhal-atmega328p'
+    if: github.repository != 'libhal/libhal-atmega'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -37,16 +37,16 @@ jobs:
         run: echo ${{ github.event.repository.name }} | sed -En "s/libhal-(.*)/target_name=\1/p" >> $GITHUB_ENV
 
       - name: Replace placeholder's in files
-        run: find . -type f -not -path '*/\.git/*' -not -path '*/\.github/*' -exec sed -i "s/atmega328p/${{ env.target_name }}/g" {} +
+        run: find . -type f -not -path '*/\.git/*' -not -path '*/\.github/*' -exec sed -i "s/atmega/${{ env.target_name }}/g" {} +
 
       - name: Replace "// NOLINT" in files
         run: find . -type f -not -path '*/\.git/*' -not -path '*/\.github/*' -exec sed -i "s/[ ]*\/\/ NOLINT//g" {} +
 
       - name: Replace placeholder's in directory names
-        run: find . -type d -not -path '*/\.git/*' -not -path '*/\.github/*' | xargs -r rename "s/atmega328p/${{ env.target_name }}/g"
+        run: find . -type d -not -path '*/\.git/*' -not -path '*/\.github/*' | xargs -r rename "s/atmega/${{ env.target_name }}/g"
 
       - name: Replace placeholder's in file names
-        run: find . -type f -not -path '*/\.git/*' | xargs -r rename "s/atmega328p/${{ env.target_name }}/g"
+        run: find . -type f -not -path '*/\.git/*' | xargs -r rename "s/atmega/${{ env.target_name }}/g"
 
       - name: Remove update_name.yml file
         run: rm .github/workflows/update_name.yml

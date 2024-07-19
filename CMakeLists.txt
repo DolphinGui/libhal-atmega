@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-project(libhal-atmega328p LANGUAGES CXX)
+project(libhal-atmega LANGUAGES CXX)
 
 find_package (Python3)
 
@@ -26,7 +26,7 @@ add_custom_command(
 )
 
 libhal_test_and_make_library(
-  LIBRARY_NAME libhal-atmega328p
+  LIBRARY_NAME libhal-atmega
 
   SOURCES
   src/output_pin.cpp

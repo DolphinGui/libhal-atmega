@@ -44,6 +44,6 @@ jobs:
       compiler_profile_url: https://github.com/libhal/arm-gnu-toolchain.git
       compiler_profile: v1/arm-gcc-12.3
       # TODO: Update this with the correct information
-      platform_profile_url: https://github.com/libhal/libhal-atmega328p.git
+      platform_profile_url: https://github.com/libhal/libhal-atmega.git
       platform_profile: profile1
     secrets: inherit

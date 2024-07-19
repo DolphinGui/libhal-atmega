@@ -35,4 +35,4 @@ private:
   hertz m_frequency;
   uint8_t m_index;
 };
-}  // namespace hal::atmega328p
+}  // namespace hal::atmega

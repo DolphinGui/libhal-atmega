@@ -33,4 +33,4 @@ bool output_pin::driver_level()
   // Replace this with the correct implementation
   return true;
 }
-}  // namespace hal::atmega328p
+}  // namespace hal::atmega

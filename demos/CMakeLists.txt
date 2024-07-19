@@ -22,8 +22,8 @@ libhal_build_demos(
     hello
 
     PACKAGES
-    libhal-atmega328p
+    libhal-atmega
 
     LINK_LIBRARIES
-    libhal::atmega328p
+    libhal::atmega
 )

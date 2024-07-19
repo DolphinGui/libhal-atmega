@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <libhal-atmega328p/output_pin.hpp>
+#include <libhal-atmega/output_pin.hpp>
 
 #include <boost/ut.hpp>
 
-namespace hal::atmega328p {  // NOLINT
+namespace hal::atmega {  // NOLINT
 void output_pin_test()
 {
   using namespace boost::ut;
@@ -28,4 +28,4 @@ void output_pin_test()
     // Verify
   };
 };
-}  // namespace hal::atmega328p
+}  // namespace hal::atmega

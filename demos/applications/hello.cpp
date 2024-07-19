@@ -1,11 +1,11 @@
-#include <libhal-atmega328p/uart.hpp>
+#include <libhal-atmega/uart.hpp>
 #include <string_view>
 
 volatile uint16_t a;
 void application()
 {
   std::array<uint8_t, 64> in{}, out{};
-  auto uart = hal::atmega328p::uart(in, out);
+  auto uart = hal::atmega::uart(in, out);
   std::string_view str = "Hello World!\n\r";
   uart.write({ reinterpret_cast<const uint8_t*>(str.data()), str.length() });
   std::array<uint8_t, 16> string = {};
