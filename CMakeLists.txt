@@ -19,10 +19,10 @@ project(libhal-atmega LANGUAGES CXX)
 find_package (Python3)
 
 add_custom_command(
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/generate_sources.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
-    DEPENDS generate_sources.py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/atdf/generate_sources.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
+    DEPENDS atdf/generate_sources.py
     OUTPUT generated_sources.cpp
-    COMMENT "Generating code for ${ProtoName}."
+    COMMENT "Generating ATDF sources."
 )
 
 libhal_test_and_make_library(

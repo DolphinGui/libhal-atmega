@@ -5,13 +5,14 @@
 #include <nonstd/ring_span.hpp>
 #include <span>
 
+// Some USART peripherals have DTR and CTS config, but most don't
+// unless there's a need for it, I'll leave it out for now
 namespace hal::atmega {
 class uart final : public hal::serial
 {
 public:
   uart(std::span<uint8_t> p_in_buffer,
        std::span<uint8_t> p_out_buffer,
-       hertz p_frequency = 16'000'000.0f,
        uint8_t index = 0);
   ~uart();
 
@@ -32,7 +33,6 @@ private:
 
   void setup_receive_interrupt();
 
-  hertz m_frequency;
   uint8_t m_index;
 };
 }  // namespace hal::atmega

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import re
 import sys
 
+
 @dataclass
 class Register:
     name: str
@@ -20,15 +21,13 @@ class USART:
     ctrl_b: Register
     ctrl_c: Register
     baud: Register
-    # baud2: Register
+    ctrl_d: Register | None = None
+    baud2: Register | None = None
     udre: int = 0
     rx: int = 0
 
 
-def to_register(node: ET.Element, reg_name: str):
-    assert re.match(
-        reg_name, node.attrib["name"]
-    ), f'Register {node.attrib["name"]} does not match {reg_name}'
+def to_register(node: ET.Element):
     return Register(
         node.attrib["name"],
         int(node.attrib["offset"], 0),
@@ -37,7 +36,7 @@ def to_register(node: ET.Element, reg_name: str):
     )
 
 
-def find_usarts(root):
+def find_usarts(root: ET.Element):
     # There's only ever one device in devices. No I don't know why either
     device = root.find("devices").find("device")
     modules = root.find("modules")
@@ -46,23 +45,23 @@ def find_usarts(root):
     for mod in modules:
         if mod.attrib["name"] == "USART":
             for reg_group in mod.findall("register-group"):
-                # This is horribly fragile. I hate this. It's probably fine since
-                # they reuse IP for the chips, probably, but still.
-                # If they ever change how they order things, this breaks.
-                ubr = (
-                    [reg_group[4]]
-                    if len(reg_group) == 5
-                    else [reg_group[4], [reg_group[5]]]
-                )
-                usarts.append(
-                    USART(
-                        to_register(reg_group[0], "UDR\\d?"),
-                        to_register(reg_group[1], "UCSR\\d?A"),
-                        to_register(reg_group[2], "UCSR\\d?B"),
-                        to_register(reg_group[3], "UCSR\\d?C"),
-                        *ubr,
-                    )
-                )
+                items = {}
+                for reg in reg_group:
+                    if re.match(r"UDR\d?", reg.attrib["name"]):
+                        items["data"] = to_register(reg)
+                    elif re.match(r"UCSR\d?A", reg.attrib["name"]):
+                        items["ctrl_a"] = to_register(reg)
+                    elif re.match(r"UCSR\d?B", reg.attrib["name"]):
+                        items["ctrl_b"] = to_register(reg)
+                    elif re.match(r"UCSR\d?C", reg.attrib["name"]):
+                        items["ctrl_c"] = to_register(reg)
+                    elif re.match(r"UCSR\d?D", reg.attrib["name"]):
+                        items["ctrl_d"] = to_register(reg)
+                    elif re.match(r"UBRR\d?L", reg.attrib["name"]):
+                        items["baud2"] = to_register(reg)
+                    elif re.match(r"UBRR\d?H?", reg.attrib["name"]):
+                        items["baud"] = to_register(reg)
+                usarts.append(USART(**items))
     interrupts = device.find("interrupts")
     if len(usarts) == 1:
         ud = re.compile("USART[01]?_UDRE")
@@ -85,7 +84,6 @@ def find_usarts(root):
                 rx = interrupts.find(f'./*[@name="USART{i}_RXC"]')
             usart.rx = int(rx.attrib["index"])
     return usarts
-
 
 # Let's assume they won't be disgusting and change up the bit positions of each register
 usart_udre_template = """
@@ -115,30 +113,77 @@ void __vector_{0}(void) noexcept {{
 }}
 """
 
-# header = """
-# namespace libhal::
-# """
-
 mcu_name = sys.argv[2]
 atdf = open(f"{sys.argv[1]}/atdf/{mcu_name}.atdf")
 tree = ET.parse(atdf)
 root = tree.getroot()
 usarts = find_usarts(root)
 
-assert root.find("./devices/device").attrib["architecture"] == "AVR8", "Incompatible device specified"
-f = open("generated_sources.cpp", "w")
-f.write(f"""#include <cstdint>
-        #include <libhal-atmega/uart.hpp>
-        namespace hal::{mcu_name.lower()}{{ 
-        hal::atmega::uart* global_uart[{len(usarts)}] = {{}};
-          """)
+assert (
+    root.find("./devices/device").attrib["architecture"] == "AVR8"
+), "Incompatible device specified"
+source = open("generated_sources.cpp", "w")
+
+source.write("""#include <cstdint>
+#include <libhal-atmega/uart.hpp>
+#include <libhal-atmega/mcu.hpp>
+namespace hal::atmega::uart_impl{
+void _set_baud(uint8_t index, uint16_t baud, bool u2x) noexcept {
+switch (index){""")
 
 for x, usart in enumerate(usarts):
-    f.write(
+    source.write(f"""case {x}:
+if(u2x)
+  (*(volatile uint8_t*){usart.ctrl_a.offset:#x}) &= ~(2);
+else
+  (*(volatile uint8_t*){usart.ctrl_a.offset:#x}) |= 2;\n""")
+    if usart.baud.size == 2:
+        source.write(
+            f"(*(volatile uint8_t*){usart.baud.offset+1:#x})=baud>>8;\n(*(volatile uint8_t*){usart.baud.offset:#x})=baud&0xff;\n"
+        )
+    else:
+        source.write(
+            f"(*(volatile uint8_t*){usart.baud.offset:#x})=baud>>8;\n(*(volatile uint8_t*){usart.baud2.offset:#x})=baud&0xff;\n"
+        )
+source.write("""
+default: break;
+}
+}
+
+void _configure(uint8_t index, uint8_t b, uint8_t c) noexcept {
+switch (index){
+""")
+for x, us in enumerate(usarts):
+    source.write(f"""
+case {x}:
+(*(volatile uint8_t*){us.ctrl_c.offset:#x}) = c;
+(*(volatile uint8_t*){us.ctrl_b.offset:#x}) = b;""")
+source.write("""
+default: break;
+}
+}
+
+void _clear(uint8_t index) noexcept {
+switch (index){""")
+for x, us in enumerate(usarts):
+    source.write(f"""
+case {x}:
+(*(volatile uint8_t*){us.ctrl_c.offset:#x})=0;
+(*(volatile uint8_t*){us.ctrl_b.offset:#x})=0;
+""")
+source.write("""
+default: break;
+}
+}""")
+
+for x, usart in enumerate(usarts):
+    source.write(
         usart_udre_template.format(
             usart.udre, index=x, ctrl_a=usart.ctrl_a.offset, data=usart.data.offset
         )
     )
-    f.write(usart_rx_template.format(usart.rx, index=x, data=usart.data.offset))
+    source.write(usart_rx_template.format(usart.rx, index=x, data=usart.data.offset))
 
-f.write('}')
+source.write(f"uint8_t const max_uarts = {len(usarts)};\nhal::atmega::uart* global_uart[{len(usarts)}]={{}};\n")
+
+source.write("}")

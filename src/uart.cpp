@@ -1,92 +1,103 @@
 #include "libhal-atmega/uart.hpp"
+#include "libhal-atmega/mcu.hpp"
 #include "status_lock.hpp"
+#include <array>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <cstdint>
+#include <libhal/units.hpp>
 #include <stdexcept>
-#ifndef F_CPU
-#define F_CPU 16'000'000UL
-#endif
-
-#ifndef BAUD
-#define BAUD 9600
-#endif
-#include <util/delay.h>
-#include <util/setbaud.h>
 
 namespace {
-// might have to make this volatile. maybe
-hal::atmega::uart* global_uart[1] = {};
+struct BaudEntry
+{
+  hal::hertz frequency;
+  uint16_t value;
+  bool u2x;
+};
+#if F_CPU == 16000000
+// copied straight from
+// https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
+constexpr auto baud_table =
+  std::to_array<BaudEntry>({ { 9600.f, 103, false },
+                             { 4800.f, 207, false },
+                             { 2400.f, 416, false },
+                             { 14400.f, 138, true },
+                             { 19200.f, 51, false },
+                             { 28800.f, 68, true },
+                             { 38400.f, 25, false },
+                             { 57600.f, 34, true },
+                             { 76800.f, 12, false },
+                             { 115200.f, 16, true },
+                             { 250000.f, 3, false } });
+#endif
+
+union UARTB
+{
+  struct
+  {
+    bool tx_bit8 : 1, rx_bit8 : 1, size2 : 1, tx_en : 1, rx_en : 1, udr_ie : 1,
+      txc_ie : 1, rxc_ie : 1;
+  };
+  uint8_t byte;
+};
+
+union UARTC
+{
+  struct
+  {
+    uint8_t polarity : 1, size : 2, stop : 1, parity : 2, mode : 2;
+  };
+  uint8_t byte;
+};
 
 }  // namespace
-
 namespace hal::atmega {
 
 uart::uart(std::span<uint8_t> p_in_buffer,
            std::span<uint8_t> p_out_buffer,
-           hertz p_frequency,
            uint8_t index)
   : m_rx(p_in_buffer.begin(), p_in_buffer.end())
   , m_tx(p_out_buffer.begin(), p_out_buffer.end())
-  , m_frequency(p_frequency)
   , m_index(index)
 {
-  if (global_uart[index] != nullptr)
+  if (uart_impl::global_uart[index] != nullptr)
     throw std::runtime_error("You constructed UART twice");
 
-  // TODO: change baud calculations to runtime
-  UBRR0H = UBRRH_VALUE;
-  UBRR0L = UBRRL_VALUE;
-
-#if USE_2X
-  UCSR0A |= _BV(U2X0);
-#else
-  UCSR0A &= ~(_BV(U2X0));
-#endif
-
-  UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */
-  UCSR0B =
-    _BV(RXEN0) | _BV(TXEN0) | _BV(UDRE0) | _BV(RXCIE0); /* Enable RX and TX */
-  global_uart[index] = this;
+  uart_impl::global_uart[index] = this;
   sei();
-}
-
-ISR(USART_RX_vect)
-{
-  auto& uart = global_uart[0];
-  if (uart->m_rx.full()) {
-    uart->overwritten = true;
-    uart->m_rx.pop_front();
-  }
-  uint8_t data = UDR0;
-  uart->m_rx.push_back(data);
-}
-
-ISR(USART_UDRE_vect)
-{
-  auto& uart = global_uart[0];
-  if (uart->m_tx.empty()) {
-    UCSR0A &= ~(_BV(UDRE0));
-  } else {
-    UDR0 = uart->m_tx.pop_front();
-  }
 }
 
 uart::~uart()
 {
-  loop_until_bit_is_set(UCSR0A, TXC0);
   slock lock;
-  UCSR0B = 0;
-  UCSR0C = 0;
-  global_uart[m_index] = nullptr;
+  uart_impl::_clear(m_index);
+  uart_impl::global_uart[m_index] = nullptr;
 }
 
-void uart::driver_configure(settings const&)
+void uart::driver_configure(settings const& options)
 {
-  // auto baud_result = uint16_t(m_frequency / (p_settings.baud_rate * 16) - 1);
-  // if (baud_result & 0b1111'0000'0000'0000) {
-  //   throw std::logic_error("Baud is too low!");
-  // }
+  UARTB rb = {};
+  rb.rx_en = true;
+  rb.tx_en = true;
+  rb.udr_ie = true;
+  rb.rxc_ie = true;
+  UARTC rc = {};
+  rc.size = 3;
+  rc.mode = 0;  // Maybe add settings for synchronous USART later
+  if (options.stop == settings::stop_bits::two)
+    rc.stop = 1;
+  if (options.parity == settings::parity::even)
+    rc.parity = 2;
+  else if (options.parity == settings::parity::odd)
+    rc.parity = 3;
+  for (const BaudEntry& entry : baud_table) {
+    if (entry.frequency == options.baud_rate) {
+      uart_impl::_set_baud(m_index, entry.value, entry.u2x);
+      break;
+    }
+  }
+  uart_impl::_configure(m_index, rb.byte, rc.byte);
 }
 
 serial::write_t uart::driver_write(std::span<const hal::byte> in)

@@ -44,6 +44,9 @@ class libhal_atmega_conan(ConanFile):
     default_options = {
         "platform": "ANY",
     }
+    
+    exports_sources = ("include/*", "linker_scripts/*", "tests/*", "LICENSE",
+                       "CMakeLists.txt", "src/*", "atdf/*")
 
     def generate(self):
         virt = VirtualBuildEnv(self)
@@ -51,6 +54,7 @@ class libhal_atmega_conan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["MCU_NAME"] = self.settings.mcu
         tc.variables["CLOCK"] = self.settings.clock
+        tc.preprocessor_definitions["F_CPU"] = self.settings.clock
         tc.generate()
         cmake = CMakeDeps(self)
         cmake.generate()
