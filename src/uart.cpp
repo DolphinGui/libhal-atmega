@@ -65,7 +65,8 @@ uart::uart(std::span<uint8_t> p_in_buffer,
 {
   if (uart_impl::global_uart[index] != nullptr)
     throw std::runtime_error("You constructed UART twice");
-
+  if (index >= uart_impl::max_uarts)
+    throw std::out_of_range("Uart index is out of range!");
   uart_impl::global_uart[index] = this;
   sei();
 }
