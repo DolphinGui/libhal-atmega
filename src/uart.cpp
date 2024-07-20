@@ -36,8 +36,9 @@ union UARTB
 {
   struct
   {
-    bool tx_bit8 : 1, rx_bit8 : 1, size2 : 1, tx_en : 1, rx_en : 1, udr_ie : 1,
-      txc_ie : 1, rxc_ie : 1;
+    bool tx_bit8 : 1 = 0, rx_bit8 : 1 = 0, size2 : 1 = 0, tx_en : 1 = 0,
+                   rx_en : 1 = 0, udr_ie : 1 = 0, txc_ie : 1 = 0,
+                   rxc_ie : 1 = 0;
   };
   uint8_t byte;
 };
@@ -46,7 +47,8 @@ union UARTC
 {
   struct
   {
-    uint8_t polarity : 1, size : 2, stop : 1, parity : 2, mode : 2;
+    uint8_t polarity : 1 = 0, size : 2 = 0, stop : 1 = 0, parity : 2 = 0,
+                       mode : 2 = 0;
   };
   uint8_t byte;
 };
@@ -71,7 +73,8 @@ uart::uart(std::span<uint8_t> p_in_buffer,
 uart::~uart()
 {
   slock lock;
-  uart_impl::_clear(m_index);
+  *uart_impl::_get_b(m_index) = 0;
+  *uart_impl::_get_c(m_index) = 0;
   uart_impl::global_uart[m_index] = nullptr;
 }
 
@@ -97,7 +100,8 @@ void uart::driver_configure(settings const& options)
       break;
     }
   }
-  uart_impl::_configure(m_index, rb.byte, rc.byte);
+  *uart_impl::_get_b(m_index) = rb.byte;
+  *uart_impl::_get_c(m_index) = rc.byte;
 }
 
 serial::write_t uart::driver_write(std::span<const hal::byte> in)
@@ -128,9 +132,9 @@ serial::read_t uart::driver_read(std::span<hal::byte> out)
 
 void uart::driver_flush()
 {
-  UCSR0B |= _BV(UDRE0);
+  *uart_impl::_get_b(m_index) |= UARTB{ .udr_ie = true }.byte;
   if (!m_tx.empty())
-    UDR0 = m_tx.pop_front();
+    *uart_impl::_get_data(m_index) = m_tx.pop_front();
 }
 
 }  // namespace hal::atmega

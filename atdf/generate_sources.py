@@ -150,31 +150,43 @@ default: break;
 }
 }
 
-void _configure(uint8_t index, uint8_t b, uint8_t c) noexcept {
-switch (index){
-""")
-for x, us in enumerate(usarts):
-    source.write(f"""
-case {x}:
-(*(volatile uint8_t*){us.ctrl_c.offset:#x}) = c;
-(*(volatile uint8_t*){us.ctrl_b.offset:#x}) = b;""")
-source.write("""
-default: break;
-}
-}
-
-void _clear(uint8_t index) noexcept {
+volatile uint8_t* _get_b(uint8_t index){
 switch (index){""")
 for x, us in enumerate(usarts):
     source.write(f"""
 case {x}:
-(*(volatile uint8_t*){us.ctrl_c.offset:#x})=0;
-(*(volatile uint8_t*){us.ctrl_b.offset:#x})=0;
+return (volatile uint8_t*){us.ctrl_b.offset:#x};
 """)
 source.write("""
-default: break;
+default: __builtin_unreachable();
 }
-}""")
+}
+
+volatile uint8_t* _get_c(uint8_t index){
+switch (index){""")
+for x, us in enumerate(usarts):
+    source.write(f"""
+case {x}:
+return (volatile uint8_t*){us.ctrl_c.offset:#x};
+""")
+source.write("""
+default: __builtin_unreachable();
+}
+}
+
+volatile uint8_t* _get_data(uint8_t index){
+switch (index){""")
+for x, us in enumerate(usarts):
+    source.write(f"""
+case {x}:
+return (volatile uint8_t*){us.data.offset:#x};
+""")
+source.write("""
+default: __builtin_unreachable();
+}
+}
+
+""")
 
 for x, usart in enumerate(usarts):
     source.write(
