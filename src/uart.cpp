@@ -5,8 +5,8 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <cstdint>
+#include <libhal/error.hpp>
 #include <libhal/units.hpp>
-#include <stdexcept>
 
 namespace {
 struct BaudEntry
@@ -64,9 +64,9 @@ uart::uart(std::span<uint8_t> p_in_buffer,
   , m_index(index)
 {
   if (uart_impl::global_uart[index] != nullptr)
-    throw std::runtime_error("You constructed UART twice");
+    throw hal::operation_not_supported(this);
   if (index >= uart_impl::max_uarts)
-    throw std::out_of_range("Uart index is out of range!");
+    throw hal::operation_not_supported(this);
   uart_impl::global_uart[index] = this;
   sei();
 }
