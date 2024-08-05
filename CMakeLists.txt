@@ -21,9 +21,11 @@ find_package (Python3)
 add_custom_command(
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/atdf/generate_sources.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
     DEPENDS atdf/generate_sources.py
-    OUTPUT generated_sources.cpp
+    OUTPUT generated_sources.hpp
     COMMENT "Generating ATDF sources."
 )
+
+include_directories(${CMAKE_BINARY_DIR})
 
 libhal_test_and_make_library(
   LIBRARY_NAME libhal-atmega
@@ -31,7 +33,8 @@ libhal_test_and_make_library(
   SOURCES
   src/output_pin.cpp
   src/uart.cpp
-  generated_sources.cpp
+  src/spi.cpp
+  generated_sources.hpp
 
   TEST_SOURCES
   tests/output_pin.test.cpp

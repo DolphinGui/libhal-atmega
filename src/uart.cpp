@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <libhal/error.hpp>
 #include <libhal/units.hpp>
+#include "generated_sources.hpp"
 
 namespace {
 struct BaudEntry
@@ -64,9 +65,9 @@ uart::uart(std::span<uint8_t> p_in_buffer,
   , m_index(index)
 {
   if (uart_impl::global_uart[index] != nullptr)
-    throw hal::operation_not_supported(this);
+    throw hal::operation_not_supported(nullptr);
   if (index >= uart_impl::max_uarts)
-    throw hal::operation_not_supported(this);
+    throw hal::operation_not_supported(nullptr);
   uart_impl::global_uart[index] = this;
   sei();
 }

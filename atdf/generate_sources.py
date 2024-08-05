@@ -122,7 +122,7 @@ usarts = find_usarts(root)
 assert (
     root.find("./devices/device").attrib["architecture"] == "AVR8"
 ), "Incompatible device specified"
-source = open("generated_sources.cpp", "w")
+source = open("generated_sources.hpp", "w")
 
 source.write("""#include <cstdint>
 #include <libhal-atmega/uart.hpp>
