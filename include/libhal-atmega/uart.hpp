@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ios>
 #include <libhal/serial.hpp>
 #include <nonstd/ring_span.hpp>
 #include <span>
@@ -18,8 +17,8 @@ public:
 
   uart(uart const& p_other) = delete;
   uart& operator=(uart const& p_other) = delete;
-  uart(uart&& p_other) noexcept;
-  uart& operator=(uart&& p_other) noexcept;
+  uart(uart&& p_other) = delete;
+  uart& operator=(uart&& p_other) = delete;
 
   bool bad = false;
   bool overwritten = false;
