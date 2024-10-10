@@ -14,19 +14,20 @@
 
 #pragma once
 
+#include "pin.hpp"
 #include <libhal/output_pin.hpp>
 
 namespace hal::atmega {  // NOLINT
 class output_pin : public hal::output_pin
 {
 public:
-  /// TODO: Update constructor
-  output_pin() = default;
+  output_pin(pin);
 
 private:
-  // Add constructor
   void driver_configure(const settings& p_settings) override;
   void driver_level(bool p_high) override;
   bool driver_level() override;
+  uint8_t port, pin_mask;
+  bool open_drain = false;
 };
 }  // namespace hal::atmega

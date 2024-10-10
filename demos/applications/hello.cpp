@@ -1,5 +1,6 @@
 #include <libhal-atmega/uart.hpp>
 #include <string_view>
+#include "mcu/io.hpp"
 
 volatile uint16_t a;
 void application()

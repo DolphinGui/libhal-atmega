@@ -14,39 +14,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from conan import ConanFile
 
-from conan.tools.cmake import  CMakeDeps, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy
 
 required_conan_version = ">=2.0.14"
+
 
 class libhal_atmega_conan(ConanFile):
     name = "libhal-atmega"
     license = "Apache-2.0"
     homepage = "https://libhal.github.io/libhal-atmega"
-    description = ("A collection of drivers and libraries for the ATMega "
-                   "series microcontrollers.")
-    topics = ("microcontroller", "atmega",)
+    description = (
+        "A collection of drivers and libraries for the ATMega "
+        "series microcontrollers."
+    )
+    topics = (
+        "microcontroller",
+        "atmega",
+    )
     settings = "compiler", "build_type", "os", "arch", "mcu", "clock"
 
     python_requires = "libhal-bootstrap/[^2.0.0]"
     python_requires_extend = "libhal-bootstrap.library"
 
     options = {
-        "platform": [
-            "profile1",
-            "profile2",
-            "ANY"
-        ],
+        "platform": ["profile1", "profile2", "ANY"],
     }
 
     default_options = {
         "platform": "ANY",
     }
-    
-    exports_sources = ("include/*", "linker_scripts/*", "tests/*", "LICENSE",
-                       "CMakeLists.txt", "src/*", "atdf/*")
+
+    exports_sources = (
+        "include/*",
+        "linker_scripts/*",
+        "tests/*",
+        "LICENSE",
+        "CMakeLists.txt",
+        "src/*",
+        "atdf/*",
+        "codegen/*",
+    )
 
     def generate(self):
         virt = VirtualBuildEnv(self)
@@ -59,6 +71,42 @@ class libhal_atmega_conan(ConanFile):
         cmake = CMakeDeps(self)
         cmake.generate()
 
+    def package(self):
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.ld",
+            dst=os.path.join(self.package_folder, "linker_scripts"),
+            src=os.path.join(self.source_folder, "linker_scripts"),
+        )
+
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.build_folder, "generated_headers"),
+        )
+
+        cmake = CMake(self)
+        cmake.install()
+
     def requirements(self):
         bootstrap = self.python_requires["libhal-bootstrap"]
         bootstrap.module.add_library_requirements(self)
@@ -69,10 +117,8 @@ class libhal_atmega_conan(ConanFile):
         self.cpp_info.libs = ["libhal-atmega"]
 
         if self.settings.os == "baremetal":
-            self.buildenv_info.define("LIBHAL_PLATFORM",
-                                      str(self.options.platform))
-            self.buildenv_info.define("LIBHAL_PLATFORM_LIBRARY",
-                                      "atmega")
+            self.buildenv_info.define("LIBHAL_PLATFORM", str(self.options.platform))
+            self.buildenv_info.define("LIBHAL_PLATFORM_LIBRARY", "atmega")
 
     def package_id(self):
         if self.info.options.get_safe("platform"):

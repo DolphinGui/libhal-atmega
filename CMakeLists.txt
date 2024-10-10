@@ -19,13 +19,27 @@ project(libhal-atmega LANGUAGES CXX)
 find_package (Python3)
 
 add_custom_command(
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/atdf/generate_sources.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
-    DEPENDS atdf/generate_sources.py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/codegen/generate_sources.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
+    DEPENDS codegen/generate_sources.py
     OUTPUT generated_sources.hpp
     COMMENT "Generating ATDF sources."
 )
 
+add_custom_command(
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/codegen/generate_headers.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
+    DEPENDS codegen/generate_headers.py
+    OUTPUT header.hpp
+    COMMENT "Generating MCU headers."
+)
+
+add_custom_target(
+  mcu_headers ALL
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/codegen/generate_headers.py ${CMAKE_CURRENT_SOURCE_DIR} ${MCU_NAME}
+  DEPENDS codegen/generate_headers.py
+)
+
 include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_BINARY_DIR}/generated_headers)
 
 libhal_test_and_make_library(
   LIBRARY_NAME libhal-atmega
@@ -33,7 +47,6 @@ libhal_test_and_make_library(
   SOURCES
   src/output_pin.cpp
   src/uart.cpp
-  src/spi.cpp
   generated_sources.hpp
 
   TEST_SOURCES
